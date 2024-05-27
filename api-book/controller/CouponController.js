@@ -30,6 +30,23 @@ const getAllCoupon = async (req, res) => {
   }
 };
 
+const getCouponByBook = async (req, res) => {
+  try {
+    let bookId = req.query.bookId;
+    console.log("req.body", req.query.bookId);
+
+    let coupon = await Coupon.find({ book: bookId });
+    console.log(coupon);
+
+    res.status(200).send({
+      message: "Coupon fetched",
+      data: coupon,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 const deleteCoupon = async (req, res) => {
   try {
     await Coupon.deleteOne({ _id: req.params.id });
@@ -50,4 +67,5 @@ module.exports = {
   createCoupon,
   getAllCoupon,
   deleteCoupon,
+  getCouponByBook,
 };

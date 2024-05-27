@@ -1,5 +1,8 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <nav
+    style="margin-top: 0"
+    class="navbar navbar-expand-lg navbar-light bg-body"
+  >
     <div class="container-fluid">
       <a class="navbar-brand" href="#">Book Store</a>
       <button
@@ -18,20 +21,8 @@
           <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="#">Home</a>
           </li>
-          <!-- <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
-          </li> -->
+
           <li class="nav-item dropdown">
-            <!-- <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdown"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              Dropdown
-            </a> -->
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li><a class="dropdown-item" href="#">Action</a></li>
               <li><a class="dropdown-item" href="#">Another action</a></li>
@@ -39,22 +30,22 @@
               <li><a class="dropdown-item" href="#">Something else here</a></li>
             </ul>
           </li>
-          <!-- <li class="nav-item">
-            <a
-              class="nav-link disabled"
-              href="#"
-              tabindex="-1"
-              aria-disabled="true"
-              >Disabled</a
-            >
-          </li> -->
         </ul>
         <form class="d-flex">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Enter Branch"
+            v-model="listQuery.name"
+            @input="getBookList()"
+          />
           <input
             class="form-control me-2"
             type="search"
             placeholder="Search"
             aria-label="Search"
+            v-model="listQuery.name"
+            @input="getBookList()"
           />
           <button class="btn btn-outline-success" type="submit">Login</button>
           <button class="btn btn-outline-success" type="submit">SignUp</button>
@@ -66,30 +57,38 @@
   <section class="articles">
     <article v-for="(book, index) in bookList" :key="index">
       <div class="article-wrapper">
-        <figure>
+        <figure class="figure">
           <img :src="book.bookUrl" alt="Image" />
         </figure>
+
         <div class="article-body">
-          <h2>{{ book.bookName }}</h2>
-          <p>
-            {{ book.shortDescription }}
-          </p>
-          <p>Price: {{ book.price }}</p>
-          <a href="#" class="read-more">
-            Purchase <span class="sr-only">about this is some title</span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="icon"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </a>
+          <div class="item">
+            <h2>{{ book.bookName }}</h2>
+            <div>
+              <!-- {{ book.shortDescription }} -->
+
+              Price: {{ book.price }} <br />Discount: {{ book.discountValue }}
+            </div>
+
+            <a href="#" class="read-more">
+              <h6 style="border: 2px solid black">
+                Purchase for {{ book.price - book.discountValue }}/- only
+              </h6>
+              <span class="sr-only">about this is some title</span>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="icon"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </a>
+          </div>
         </div>
       </div>
     </article>
@@ -97,27 +96,62 @@
 </template>
 <script>
 import axios from "axios";
+// import { forEach } from "core-js/core/array";
 
 export default {
   data() {
     return {
       bookList: [],
+      coupon: "",
+      totalDiscount: 0,
+      bookId: "",
+      listQuery: {
+        name: "",
+        // page: 1,
+        // limit: 2,
+      },
     };
   },
   created() {
     this.getBookList();
+    // this.getCouponByBook(this.bookId);
   },
   methods: {
+    // async getCouponByBook(bookId) {
+    //   console.log("coupon by book");
+    //   try {
+    //     // alert("ok..");
+    //     let result = await axios({
+    //       method: "get",
+    //       url: "http://localhost:3000/coupon/byBook/?bookId=" + bookId,
+    //     });
+    //     console.log(result, "message");
+
+    //     this.totalDiscount = result.data.discountValue;
+
+    //     console.log(this.totalDiscount);
+    //     console.log("totaldis", this.totalDiscount);
+    //   } catch (err) {
+    //     console.log(err);
+    //   }
+    // },
     async getBookList() {
       try {
         // alert("ok..");
         let result = await axios({
           method: "get",
-          url: "http://localhost:3000/book/get/all",
+          url: "http://localhost:3000/book/coupon",
+
           params: this.listQuery,
         });
         console.log(result, "message");
         this.bookList = result.data.data;
+        console.log(this.bookList);
+        // if (result.data.success) {
+        //   this.bookList.forEach((book) => {
+        //     this.getCouponByBook(book._id);
+        //   });
+        // }
       } catch (err) {
         console.log(err);
       }
@@ -126,6 +160,22 @@ export default {
 };
 </script>
 <style scoped>
+.navbar navbar-expand-lg navbar-light bg-body {
+  backdrop-filter: blur(30px);
+  box-shadow: 0px 0px 30px rgba(227, 228, 237, 0.37);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background-color: #e9d5d5;
+  z-index: 1000;
+  /* margin-bottom: 150px; */
+}
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
 article {
   --img-scale: 1.001;
   --title-color: black;
@@ -138,6 +188,7 @@ article {
   transform-origin: center;
   transition: all 0.4s ease-in-out;
   overflow: hidden;
+  margin-top: 15px;
 }
 
 article a::after {
@@ -151,7 +202,7 @@ article a::after {
 /* basic article elements styling */
 article h2 {
   margin: 0 0 18px 0;
-  font-family: "Bebas Neue", cursive;
+  /* // font-family: "Bebas Neue", cursive; */
   font-size: 1.9rem;
   letter-spacing: 0.06em;
   color: var(--title-color);
@@ -173,6 +224,11 @@ article img {
 }
 
 .article-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Align items horizontally center */
+  justify-content: center; /* Align items vertically center */
+  /* height: 100vh; Example height to center vertically within the viewport */
   padding: 24px;
 }
 
@@ -180,7 +236,7 @@ article a {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
-  color: #28666e;
+  color: #000000;
 }
 
 article a:focus {
@@ -274,5 +330,21 @@ body {
   position: absolute;
   white-space: nowrap;
   width: 1px;
+}
+
+.figure {
+  width: 80%;
+  height: 250px;
+  overflow: hidden;
+  position: relative;
+}
+
+.figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>

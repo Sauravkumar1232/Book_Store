@@ -11,6 +11,7 @@ const BookSchema = new Schema({
   quantityAvailable: { type: Number, required: true },
   price: { type: Number, required: true },
   bookUrl: { type: String, required: false },
+  // discountValue: { type: Number, required: true },
   createdAt: Date,
   updatedAt: Date,
 });

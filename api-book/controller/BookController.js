@@ -1,6 +1,7 @@
 const Book = require("../model/BookSchema");
 const Q = require("q");
 const cloudinary = require("cloudinary");
+const CouponSchema = require("../model/CouponSchema");
 const createBook = async (req, res) => {
   try {
     console.log(req.body);
@@ -32,8 +33,47 @@ const getBooks = async (req, res) => {
     console.log(books);
 
     res.status(200).send({
+      success: true,
       message: "book fetched",
       data: books,
+    });
+  } catch (err) {
+    console.log(err.message);
+  }
+};
+const getBookWithCoupon = async (req, res) => {
+  try {
+    // let books = await Book.find({}).select("bookName bookUrl");
+    let name = req.query.name;
+    console.log(name, "req.query");
+    let books = await Book.find({
+      bookName: { $regex: new RegExp(name.toLowerCase(), "i") },
+    });
+    // Create an array of promises for finding coupons
+    const bookPromises = books.map(async (book) => {
+      const coupon = await CouponSchema.findOne({ book: book._id });
+
+      // Clone the book object to avoid mutating the original book object
+      const updatedBook = book.toObject();
+
+      if (coupon) {
+        // Apply the discount
+        updatedBook.discountValue = coupon.discountValue;
+      } else {
+        // If no coupon, the discounted price is the same as the original price
+        updatedBook.discountValue = 0;
+      }
+      return updatedBook;
+    });
+
+    // Wait for all promises to resolve
+    const updatedBooks = await Promise.all(bookPromises);
+    // console.log("newBooks", books);
+
+    res.status(200).send({
+      success: true,
+      message: "book fetched",
+      data: updatedBooks,
     });
   } catch (err) {
     console.log(err.message);
@@ -84,5 +124,6 @@ module.exports = {
   createBook,
   getAll,
   deleteBook,
+  getBookWithCoupon,
   getBooks,
 };

@@ -11,6 +11,9 @@ router.post("/book/create", upload.any(), (req, res) => {
 router.get("/book/get/all", (req, res) => {
   bookController.getBooks(req, res);
 });
+router.get("/book/coupon", (req, res) => {
+  bookController.getBookWithCoupon(req, res);
+});
 router.get("/book/get", (req, res) => {
   bookController.getAll(req, res);
 });

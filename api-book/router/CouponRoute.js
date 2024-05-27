@@ -8,8 +8,8 @@ router.post("/coupon/create", (req, res) => {
 router.get("/coupon/list", (req, res) => {
   CouponController.getAllCoupon(req, res);
 });
-router.get("/coupon/byCourse", (req, res) => {
-  CouponController.getAllCouponByCourse(req, res);
+router.get("/coupon/byBook", (req, res) => {
+  CouponController.getCouponByBook(req, res);
 });
 router.get("/coupon/get", (req, res) => {
   CouponController.getCoupons(req, res);
